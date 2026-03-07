@@ -10,7 +10,7 @@ project with this starter app template.
 
 <h3 align="center">
     <a href="https://www.youtube.com/watch?v=93QshblT1HM" target="_blank">
-        <img src="https://downloads.joshuaparker.blog/images/Visio-Build-YouTube.png" alt="Build Simple, Dynamic Web Pages Visually in CodefyPHP" />
+        <img src="https://downloads.joshuaparker.blog/images/Vihzhuo-Build-YouTube.png" alt="Build Simple, Dynamic Web Pages Visually in CodefyPHP" />
     </a>
 </h3>
 
