@@ -14,10 +14,12 @@ use Vihzhuo\Contracts\PageContract;
 use Vihzhuo\Repositories\PageRepository;
 
 use function Codefy\Framework\Helpers\config;
+use function Codefy\Framework\Helpers\gate;
 use function Codefy\Framework\Helpers\trans;
 use function Codefy\Framework\Helpers\view;
 use function phpb_trans;
 use function phpb_url;
+use function Qubus\Security\Helpers\t__;
 
 final class WebsiteManagerController extends BaseController
 {
@@ -29,6 +31,14 @@ final class WebsiteManagerController extends BaseController
      */
     public function index(ServerRequest $request): ResponseInterface
     {
+        if (false === gate(permission: 'vihzhuo:manage')) {
+            Codefy::$PHP->flash->error(
+                message: t__(msgid: 'Access denied.', domain: 'devflow')
+            );
+
+            return $this->redirect($this->router->url(name: 'admin.home'));
+        }
+
         $this->vihzhuoInstance();
 
         $pageRepository = new PageRepository();
