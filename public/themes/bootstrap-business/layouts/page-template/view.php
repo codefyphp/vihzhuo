@@ -6,18 +6,18 @@ use Codefy\Framework\Proxy\Codefy;
 ?>
 
 <!DOCTYPE html>
-<html lang="<?=Codefy::$PHP->language;?>">
+<html lang="<?=Codefy::$PHP->configContainer->string('app.language');?>">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="<?=$page->getTranslation('meta_description');?>" />
+    <meta charset="<?=Codefy::$PHP->configContainer->string('app.charset');?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="<?=$page->getTranslation('meta_description');?>">
     <title><?=$page->getTranslation('meta_title');?></title>
     <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="<?=phpb_theme_asset('images/favicon.ico');?>" />
+    <link rel="icon" type="image/x-icon" href="<?=phpb_theme_asset('images/favicon.ico');?>">
     <!-- Bootstrap icons-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="<?=phpb_theme_asset('css/style.css');?>" rel="stylesheet" />
+    <link href="<?=phpb_theme_asset('css/style.css');?>" rel="stylesheet">
 </head>
 <body class="d-flex flex-column h-100">
 <main class="flex-shrink-0">
