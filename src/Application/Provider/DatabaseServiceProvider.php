@@ -17,6 +17,5 @@ class DatabaseServiceProvider extends CodefyServiceProvider
                 $this->codefy->getDbConnection()
             );
         });
-        $this->codefy->share(nameOrInstance: Database::class);
     }
 }
