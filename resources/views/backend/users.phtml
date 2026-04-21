@@ -10,7 +10,7 @@ $this->block('content', function ($params) {
 <main class="container mx-auto px-6 py-16" x-data="{users: <?=$this->esc($params['users']);?> }">
     <?=Codefy::$PHP->flash->display();?>
     <!-- Users List -->
-    <section class="mb-16">
+    <section x-cloak class="mb-16">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-semibold text-slate-800"><?=$this->trans('All Users');?></h3>
             <?php $this->insert('framework::backend/partials/x-create-user-modal'); ?>

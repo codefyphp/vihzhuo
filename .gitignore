@@ -3,7 +3,7 @@
 App/Domain/Post
 App/Domain/PostType
 App/Domain/Site
-database/visio.sqlite
+database/vihzhuo.sqlite
 database/migrations/.migrations.log
 init.php
 resources/views/*.tpl

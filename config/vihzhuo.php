@@ -34,7 +34,7 @@ return [
             'use_database' => true,
             'database' => [
                 'dsn'    => env(key: 'DB_DSN'),
-                'username'  => env('DB_USERNAME'),
+                'username'  => env('DB_USER'),
                 'password'  => env('DB_PASSWORD'),
                 'options' => [
                     PDO::ATTR_EMULATE_PREPARES => false,

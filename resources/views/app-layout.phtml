@@ -6,10 +6,10 @@ use function Codefy\Framework\Helpers\gate;
 
 ?>
 <!DOCTYPE html>
-<html lang="<?=Codefy::$PHP->language;?>">
+<html lang="<?=Codefy::$PHP->configContainer->string('app.language');?>">
 <head>
     <base href="<?=$this->url();?>">
-    <meta charset="<?=Codefy::$PHP->charset;?>">
+    <meta charset="<?=Codefy::$PHP->configContainer->string('app.charset');?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="CodefyPHP <?=$this->esc(Codefy::$PHP->version());?>">
     <title><?=$this->esc($title);?></title>
