@@ -28,14 +28,14 @@ return [
     | Application Debug Mode
     |--------------------------------------------------------------------------
     */
-    'debug' => env(key: 'APP_DEBUG'),
+    'debug' => env(key: 'APP_DEBUG', default: false),
 
     /*
     |--------------------------------------------------------------------------
     | Application Base Url
     |--------------------------------------------------------------------------
     */
-    'url' => env(key: 'APP_URL', default: 'https://codefy.ddev.site/'),
+    'url' => env(key: 'APP_BASE_URL', default: 'http://localhost:8080/'),
 
     /*
     |--------------------------------------------------------------------------
@@ -84,7 +84,7 @@ return [
     | Encryption Key
     |--------------------------------------------------------------------------
     */
-    'crypto_key' => file_get_contents(filename: __DIR__ . '/../.enc.key'),
+    'crypto_key' => is_file(__DIR__ . '/../.enc.key') ? trim(file_get_contents(__DIR__ . '/../.enc.key')) : '',
 
     /*
     |--------------------------------------------------------------------------
@@ -121,7 +121,7 @@ return [
     | can add them to a route, a group of routes or controllers.
     */
     'middlewares' => Middleware::defaultMiddlewares()->merge([
-        // Application Middleware Aliases...
+        'http.exception' => Application\Http\Middleware\HttpExceptionMiddleware::class,
     ])->toArray(),
 
     /*
@@ -132,13 +132,15 @@ return [
     | application.
     */
     'base_middlewares' => [
+        'cors',
+        'http.exception',
+        'firewall',
         'csrf.token',
         'csrf.protection',
         'http.cache.prevention',
         'user.cookie.decrypt',
         'bind.request',
-        'php.debugbar',
-        //'http.exception', //uncomment in production
+        ...(env(key: 'APP_DEBUG', default: false) === true ? ['php.debugbar'] : []),
     ],
 
     /*

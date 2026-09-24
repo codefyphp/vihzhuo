@@ -10,6 +10,9 @@ use Codefy\Framework\Proxy\Codefy;
 use Psr\Http\Message\ResponseInterface;
 use Qubus\Exception\Data\TypeException;
 use Qubus\Http\ServerRequest;
+use Qubus\Http\Response;
+use Qubus\Routing\Psr7Router;
+use ReflectionException;
 use Vihzhuo\Contracts\PageContract;
 use Vihzhuo\Repositories\PageRepository;
 
@@ -26,6 +29,10 @@ final class WebsiteManagerController extends BaseController
     private string $managerIndexTemplate = 'framework::backend/manager/index';
     private string $pageSettingsTemplate = 'framework::backend/manager/page-settings';
 
+    public function __construct(protected Psr7Router $router)
+    {
+    }
+
     /**
      * @throws \Exception
      */
@@ -40,29 +47,38 @@ final class WebsiteManagerController extends BaseController
         }
 
         $this->vihzhuoInstance();
+        $query = array_filter($request->getQueryParams(), 'is_string', ARRAY_FILTER_USE_KEY);
+        $route = $this->stringValue($query, 'route');
+        $action = $this->stringValue($query, 'action');
 
-        $pageRepository = new PageRepository();
-        $pages = $pageRepository->getAll();
-
-        if (isset($request->getQueryParams()['route']) && $request->getQueryParams()['route'] === 'page_settings') {
-            if ($request->getQueryParams()['action'] === 'create') {
+        if ($route === 'page_settings') {
+            if ($action === 'create') {
                 return $this->handleCreate($request);
             }
 
-            /** @var string $pageId */
-            $pageId = $request->getQueryParams()['page'] ?? null;
-            $pageRepository = new PageRepository;
-            $page = $pageRepository->findWithId($pageId);
+            $pageId = $query['page'] ?? null;
+            $pageRepository = new PageRepository();
+            $page = null;
+            if (is_int($pageId) || is_string($pageId)) {
+                $page = $pageRepository->findWithId($pageId);
+            }
+
             if (! ($page instanceof PageContract)) {
                 return $this->redirect(phpb_url('website_manager'));
             }
 
-            if ($request->getQueryParams()['action'] === 'edit') {
+            if ($action === 'edit') {
                 return $this->handleEdit($page, $request);
-            } elseif ($request->getQueryParams()['action'] === 'destroy') {
+            } elseif ($action === 'destroy') {
+                if ($request->getMethod() !== 'POST') {
+                    return new Response(status: 405, headers: ['Allow' => 'POST']);
+                }
                 return $this->handleDestroy($page);
             }
         }
+
+        $pageRepository = new PageRepository();
+        $pages = $pageRepository->getAll();
 
         return view(
             template: $this->managerIndexTemplate,
@@ -78,7 +94,9 @@ final class WebsiteManagerController extends BaseController
      */
     private function vihzhuoInstance(): void
     {
-        new CodefyPageBuilder(config()->array(key: 'vihzhuo'));
+        $config = config()->array(key: 'vihzhuo');
+
+        new CodefyPageBuilder(array_filter($config, 'is_string', ARRAY_FILTER_USE_KEY));
     }
 
     /**
@@ -108,9 +126,9 @@ final class WebsiteManagerController extends BaseController
      */
     private function handleCreate(ServerRequest $request): ResponseInterface
     {
-        if ($request->getMethod() === 'POST') {
-            $pageRepository = new PageRepository;
-            $page = $pageRepository->create((array) $request->getParsedBody());
+        if (strtoupper($request->getMethod()) === 'POST') {
+            $pageRepository = new PageRepository();
+            $page = $pageRepository->create($this->parsedBody($request));
             if ($page) {
                 /** @var string $message */
                 $message = phpb_trans(key: 'website-manager.page-created');
@@ -128,9 +146,9 @@ final class WebsiteManagerController extends BaseController
      */
     private function handleEdit(PageContract $page, ServerRequest $request): ResponseInterface
     {
-        if ($request->getMethod() === 'POST') {
-            $pageRepository = new PageRepository;
-            $success = $pageRepository->update($page, (array) $request->getParsedBody());
+        if (strtoupper($request->getMethod()) === 'POST') {
+            $pageRepository = new PageRepository();
+            $success = $pageRepository->update($page, $this->parsedBody($request));
             if ($success) {
                 /** @var string $message */
                 $message = phpb_trans(key: 'website-manager.page-updated');
@@ -143,14 +161,33 @@ final class WebsiteManagerController extends BaseController
         return $this->renderPageSettings($page);
     }
 
+    /** @throws ReflectionException */
     private function handleDestroy(PageContract $page): ResponseInterface
     {
-        $pageRepository = new PageRepository;
+        $pageRepository = new PageRepository();
         $pageRepository->destroy($page->getId());
         /** @var string $message */
         $message = phpb_trans(key: 'website-manager.page-deleted');
         Codefy::$PHP->flash->success($message);
 
         return $this->redirect(phpb_url('website_manager'));
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function stringValue(array $values, string $key): ?string
+    {
+        $value = $values[$key] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
+    /** @return array<string, mixed> */
+    private function parsedBody(ServerRequest $request): array
+    {
+        $body = $request->getParsedBody();
+
+        return is_array($body) ? array_filter($body, 'is_string', ARRAY_FILTER_USE_KEY) : [];
     }
 }

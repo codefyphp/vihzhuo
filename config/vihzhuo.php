@@ -33,7 +33,7 @@ return [
         'storage' => [
             'use_database' => true,
             'database' => [
-                'dsn'    => env(key: 'DB_DSN'),
+                'dsn'    => env(key: 'DB_DSN') ?: 'sqlite:' . dirname(__DIR__) . '/database/codefy.sqlite',
                 'username'  => env('DB_USER'),
                 'password'  => env('DB_PASSWORD'),
                 'options' => [
@@ -71,7 +71,7 @@ return [
      */
         'website_manager' => [
             'use_website_manager' => true,
-            'class' => Vihzhuo\Modules\WebsiteManager\WebsiteManager::class,
+            'class' => Application\Service\WebsiteManager::class,
             'url' => '/admin/manager'
         ],
 
@@ -96,7 +96,7 @@ return [
      |
      */
         'pagebuilder' => [
-            'class' => Vihzhuo\Modules\GrapesJS\PageBuilder::class,
+            'class' => Application\Service\PageEditor::class,
             'url' => '/admin/manager/pagebuilder',
             'actions' => [
                 'back' => '/admin/manager'

@@ -22,6 +22,7 @@ $pageTranslations = $params['page'] ? $params['page']->getTranslations() : [];
     <div class="row">
         <div class="col-12">
             <form method="post" action="<?= phpb_url('website_manager', ['route' => 'page_settings', 'action' => $params['action']]) ?><?= $pageUrlParam ?>">
+                <?=csrf_field();?>
                 <h3 class="mb-3 display-6">
                     <?php
                     if ($params['action'] === 'create'):

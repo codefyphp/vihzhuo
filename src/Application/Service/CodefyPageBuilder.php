@@ -8,5 +8,4 @@ use Vihzhuo\Vihzhuo;
 
 final class CodefyPageBuilder extends Vihzhuo
 {
-
 }

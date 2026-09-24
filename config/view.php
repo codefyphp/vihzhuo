@@ -23,7 +23,7 @@ return [
     |--------------------------------------------------------------------------
     | Only if supported by the view being used.
     */
-    'cache' => resource_path(path: 'views'.Application::DS.'cache'),
+    'cache' => resource_path(path: 'views' . Application::DS . 'cache'),
 
     /*
     |--------------------------------------------------------------------------

@@ -6,9 +6,12 @@ namespace Application\Http\Controller;
 
 use Codefy\Framework\Http\BaseController;
 use Codefy\Framework\Proxy\Codefy;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
+use Qubus\Exception\Data\TypeException;
 use Qubus\Routing\Exceptions\NamedRouteNotFoundException;
 use Qubus\Routing\Exceptions\RouteParamFailedConstraintException;
+use Qubus\Routing\Psr7Router;
 
 use function Codefy\Framework\Helpers\gate;
 use function Codefy\Framework\Helpers\trans;
@@ -17,6 +20,10 @@ use function Codefy\Framework\Helpers\view;
 final class AuthController extends BaseController
 {
     private string $loginTemplate = 'framework::frontend/login';
+
+    public function __construct(protected Psr7Router $router)
+    {
+    }
 
     /**
      * @throws RouteParamFailedConstraintException
@@ -53,9 +60,19 @@ final class AuthController extends BaseController
     }
 
     /**
+     * @return ResponseInterface
+     * @throws TypeException
+     * @throws Exception
+     */
+    public function confirmLogout(): ResponseInterface
+    {
+        return view('framework::frontend/logout', ['title' => trans('Logout')]);
+    }
+
+    /**
      * @throws RouteParamFailedConstraintException
+     * @throws TypeException
      * @throws NamedRouteNotFoundException
-     * @throws \Exception
      */
     public function logout(): ResponseInterface
     {

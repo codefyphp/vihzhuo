@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Application\Service;
 
 use Codefy\Framework\Proxy\Codefy;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Qubus\Exception\Data\TypeException;
+use Qubus\Http\Factories\EmptyResponseFactory;
 use Vihzhuo\Contracts\AuthContract;
 
 use function Codefy\Framework\Helpers\config;
@@ -16,20 +19,26 @@ use function phpb_redirect;
 class VihzhuoAuth implements AuthContract
 {
     /**
+     * @param ServerRequestInterface $request
+     * @param string|null $action
      * @inheritDoc
+     * @throws TypeException
      */
-    public function handleRequest(?string $action = null): void
+    public function handleRequest(ServerRequestInterface $request, ?string $action = null): ?ResponseInterface
     {
         if (phpb_in_module('auth')) {
             if ($this->isAuthenticated()) {
-                phpb_redirect(url: phpb_url(module: 'website_manager'));
-            } else {
-                Codefy::$PHP->flash->error(message: 'Access denied');
-                phpb_redirect(url: site_url(path: 'login'));
+                return phpb_redirect(url: phpb_url(module: 'website_manager'));
             }
+
+            Codefy::$PHP->flash->error(message: 'Access denied');
+
+            return phpb_redirect(url: site_url(path: config()->string('auth.login_route')));
         } elseif ($action === 'logout') {
-            phpb_redirect(url: site_url(path: 'logout'));
+            return phpb_redirect(url: site_url(path: 'logout'));
         }
+
+        return null;
     }
 
     /**
@@ -44,23 +53,24 @@ class VihzhuoAuth implements AuthContract
      * @inheritDoc
      * @throws TypeException
      */
-    public function requireAuth(): void
+    public function requireAuth(): ?ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            phpb_redirect(
+            return phpb_redirect(
                 url: site_url(
                     path: config()->string(key: 'auth.login_route')
                 )
             );
-            exit();
         }
+
+        return null;
     }
 
     /**
      * @inheritDoc
      */
-    public function renderLoginForm(): void
+    public function renderLoginForm(): ResponseInterface
     {
-        return ;
+        return EmptyResponseFactory::create();
     }
 }

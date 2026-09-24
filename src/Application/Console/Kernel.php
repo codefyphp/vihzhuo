@@ -25,7 +25,9 @@ final class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        //$schedule->php(script: 'contents.php')->everyMinute();
+        // Register existing scripts using absolute paths and explicit arguments.
+        // onlyOneInstance() runs in the foreground and holds the lock until completion.
+        // $schedule->command('queue:run')->everyMinute()->onlyOneInstance();
     }
 
     /**

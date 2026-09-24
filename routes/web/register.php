@@ -10,6 +10,7 @@ return function (\Qubus\Routing\Psr7Router $router) {
             ->name('register.show');
 
         $group1->map(verbs: ['POST'], uri: '/create/', callback: 'RegisterController@create')
-            ->name('register.create');
+            ->name('register.create')
+            ->middleware(['rate.limiter']);
     });
 };

@@ -25,6 +25,9 @@ To create a new project, run the following command:
 composer create-project codefyphp/vihzhuo my-app-name
 ```
 
+## More Info
+- [Documentation](https://codefyphp.com/docs/digging-deeper/pagebuilder/)
+
 ## 🙌 Sponsors
 
 If you use CodefyPHP or you are interested in supporting the continued development of my opensource projects,

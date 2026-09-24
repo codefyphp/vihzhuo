@@ -10,14 +10,27 @@ use Codefy\Framework\Dto\Trait\DtoAware;
 use Codefy\Framework\Proxy\Codefy;
 use Codefy\Framework\Validation\HttpInputValidator;
 use Domain\User\Dto\UpdateUserPassword;
+use ReflectionException;
 
 use function Codefy\Framework\Helpers\gate;
+use function Codefy\Framework\Helpers\user;
 use function strtolower;
 
 #[UseDto(UpdateUserPassword::class)]
 final class UpdateUserPasswordValidator extends HttpInputValidator implements HasDto
 {
     use DtoAware;
+
+    /**
+     * @throws ReflectionException
+     */
+    protected function prepareForValidation(): void
+    {
+        $current = user();
+        $this->data = array_replace($this->all(), [
+            'user_id' => is_object($current) ? ($current->user_id ?? null) : null,
+        ]);
+    }
 
     public function authorize(): bool
     {
@@ -52,8 +65,9 @@ final class UpdateUserPasswordValidator extends HttpInputValidator implements Ha
         $passwordMinLength = Codefy::$PHP->configContainer->integer(key: 'auth.password_min_length');
 
         return [
+            'user_id' => 'required|ulid',
             'password' => "required|string|min:{$passwordMinLength}",
-            'confirm_password' => 'same:password',
+            'confirm_password' => 'required|string|same:password',
         ];
     }
 }

@@ -8,5 +8,4 @@ use Codefy\Domain\Aggregate\AggregateRepository;
 
 interface UserAggregateRepository extends AggregateRepository
 {
-
 }

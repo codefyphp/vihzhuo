@@ -15,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Qubus\Http\ServerRequest;
 use Qubus\Routing\Exceptions\NamedRouteNotFoundException;
 use Qubus\Routing\Exceptions\RouteParamFailedConstraintException;
+use Qubus\Routing\Psr7Router;
 
 use function array_values;
 use function Codefy\Framework\Helpers\trans;
@@ -25,6 +26,10 @@ final class AdminController extends BaseController
 {
     private string $dashboardTemplate = 'framework::backend/index';
     private string $usersTemplate = 'framework::backend/users';
+
+    public function __construct(protected Psr7Router $router)
+    {
+    }
 
     /**
      * @throws RouteParamFailedConstraintException

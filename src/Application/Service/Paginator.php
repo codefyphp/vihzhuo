@@ -11,18 +11,10 @@ class Paginator
     public const string NUM_PLACEHOLDER = '(:num)';
 
     protected int $totalItems;
-    public int $numPages {
-        get => $this->numPages;
-    }
+    public int $numPages;
     protected int $itemsPerPage;
-    public protected(set) int $currentPage {
-        get => $this->currentPage;
-        set(int $value) =>$this->currentPage = $value;
-    }
-    public protected(set) string $urlPattern {
-        get => $this->urlPattern;
-        set(string $value) => $this->urlPattern = $value;
-    }
+    public protected(set) int $currentPage;
+    public protected(set) string $urlPattern;
     protected int $maxPagesToShow = 10;
     protected string $previousText = 'Previous';
     protected string $nextText = 'Next';
@@ -46,7 +38,7 @@ class Paginator
 
     protected function updateNumPages(): void
     {
-        $this->numPages = ($this->itemsPerPage == 0 ? 0 : (int) ceil($this->totalItems/$this->itemsPerPage));
+        $this->numPages = ($this->itemsPerPage == 0 ? 0 : (int) ceil($this->totalItems / $this->itemsPerPage));
     }
 
     /**
@@ -165,7 +157,7 @@ class Paginator
      *     array ('num' => 10,    'url' => '/example/page/10', 'isCurrent' => false),
      * )
      *
-     * @return array<array{'num': string, 'url': string|null, 'isCurrent': bool}> | non-empty-list<array{num: int, url: string, isCurrent: bool} | array{num: string, url: null, isCurrent: false}>
+     * @return list<array{num: int|string, url: string|null, isCurrent: bool}>
      */
     public function getPages(): array
     {
@@ -258,7 +250,7 @@ class Paginator
         $html = '<ul class="pagination">';
         if ($this->getPrevUrl()) {
             $html .= '<li>
-                <a href="' . htmlspecialchars($this->getPrevUrl()) . '">&laquo; '. $this->previousText .'</a>
+                <a href="' . htmlspecialchars($this->getPrevUrl()) . '">&laquo; ' . $this->previousText . '</a>
                 </li>';
         }
 
@@ -274,7 +266,7 @@ class Paginator
 
         if ($this->getNextUrl()) {
             $html .= '<li>
-            <a href="' . htmlspecialchars($this->getNextUrl()) . '">'. $this->nextText .' &raquo;</a>
+            <a href="' . htmlspecialchars($this->getNextUrl()) . '">' . $this->nextText . ' &raquo;</a>
             </li>';
         }
         $html .= '</ul>';

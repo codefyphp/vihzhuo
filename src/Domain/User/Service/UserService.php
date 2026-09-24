@@ -17,8 +17,12 @@ use Domain\User\Command\UpdateUserPasswordCommand;
 use Domain\User\Query\FindUsersQuery;
 use Domain\User\Validator\DestroyUserValidator;
 use Domain\User\Validator\StoreUserValidator;
+use Domain\User\Validator\RegisterUserValidator;
 use Domain\User\Validator\UpdateUserPasswordValidator;
 use Domain\User\Validator\UpdateUserValidator;
+use PDOException;
+use Qubus\Exception\Data\TypeException;
+use ReflectionException;
 
 use function Codefy\Framework\Helpers\ask;
 use function Codefy\Framework\Helpers\command;
@@ -36,8 +40,9 @@ final readonly class UserService
      *      'email':string,
      *      'role':string
      *  }> | array<mixed>
-     * @throws \ReflectionException
      * @throws UnresolvableQueryHandlerException
+     * @throws TypeException
+     * @throws ReflectionException
      */
     public function findAll(): array
     {
@@ -64,10 +69,12 @@ final readonly class UserService
             Codefy::$PHP->flash->success(
                 message: trans('User added successfully.'),
             );
-        } catch (CommandPropertyNotFoundException|
-                \ReflectionException|
-                UnresolvableCommandHandlerException|
-                CommandCouldNotBeHandledException $e
+        } catch (
+            PDOException |
+            CommandPropertyNotFoundException |
+            \ReflectionException |
+            UnresolvableCommandHandlerException |
+            CommandCouldNotBeHandledException $e
         ) {
             Codefy::$PHP->flash->error(
                 message: trans('Could not create user. Please try again later.'),
@@ -92,10 +99,12 @@ final readonly class UserService
             Codefy::$PHP->flash->success(
                 message: trans('Profile was updated successfully.'),
             );
-        } catch (CommandPropertyNotFoundException|
-                \ReflectionException|
-                UnresolvableCommandHandlerException|
-                CommandCouldNotBeHandledException $e
+        } catch (
+            PDOException |
+            CommandPropertyNotFoundException |
+            \ReflectionException |
+            UnresolvableCommandHandlerException |
+            CommandCouldNotBeHandledException $e
         ) {
             Codefy::$PHP->flash->error(
                 message: trans('Could not update the profile.'),
@@ -123,10 +132,12 @@ final readonly class UserService
             Codefy::$PHP->flash->success(
                 message: trans('Password was updated successfully.'),
             );
-        } catch (CommandPropertyNotFoundException|
-                \ReflectionException|
-                UnresolvableCommandHandlerException|
-                CommandCouldNotBeHandledException $e
+        } catch (
+            PDOException |
+            CommandPropertyNotFoundException |
+            \ReflectionException |
+            UnresolvableCommandHandlerException |
+            CommandCouldNotBeHandledException $e
         ) {
             Codefy::$PHP->flash->error(
                 message: trans('Password could not be updated. Please try again later.'),
@@ -154,10 +165,12 @@ final readonly class UserService
             Codefy::$PHP->flash->success(
                 message: trans('User was deleted.'),
             );
-        } catch (CommandPropertyNotFoundException|
-                \ReflectionException|
-                UnresolvableCommandHandlerException|
-                CommandCouldNotBeHandledException $e
+        } catch (
+            PDOException |
+            CommandPropertyNotFoundException |
+            \ReflectionException |
+            UnresolvableCommandHandlerException |
+            CommandCouldNotBeHandledException $e
         ) {
             Codefy::$PHP->flash->error(
                 message: trans('User could not be deleted. Please try again later.'),
@@ -173,7 +186,7 @@ final readonly class UserService
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function createAccount(StoreUserValidator $data): bool
+    public function createAccount(RegisterUserValidator $data): bool
     {
         try {
             command(
@@ -187,10 +200,12 @@ final readonly class UserService
             );
 
             return true;
-        } catch (CommandPropertyNotFoundException|
-                \ReflectionException|
-                UnresolvableCommandHandlerException|
-                CommandCouldNotBeHandledException $e
+        } catch (
+            PDOException |
+            CommandPropertyNotFoundException |
+            \ReflectionException |
+            UnresolvableCommandHandlerException |
+            CommandCouldNotBeHandledException $e
         ) {
             Codefy::$PHP->flash->error(
                 message: trans('Could not create account. Please try again later.'),

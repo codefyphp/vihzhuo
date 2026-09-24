@@ -8,7 +8,6 @@ use Codefy\Framework\Auth\Repository\AuthUserRepository;
 use Codefy\Framework\Auth\UserSession;
 use Codefy\Framework\Support\Password;
 use Qubus\Config\ConfigContainer;
-use Qubus\Exception\Data\TypeException;
 use Qubus\Exception\Exception;
 use Qubus\Expressive\Connection;
 use Qubus\Http\Session\SessionEntity;
@@ -57,9 +56,30 @@ class PdoAuthUserRespository implements AuthUserRepository
         $passwordHash = ($result->{$fields['password']} ?? '');
 
         if (Password::verify(password: $password ?? '', hash: $passwordHash)) {
+            $token = $result->{$fields['token']} ?? null;
+            if (!is_string($token) || $token === '') {
+                return null;
+            }
+
+            if (Password::needsRehash($passwordHash)) {
+                // Compare the old hash too, so a concurrent password change is never overwritten.
+                $update = $this->connection->pdo->prepare(sprintf(
+                    'UPDATE %s SET %s = :hash WHERE %s = :identity AND %s = :old_hash',
+                    $table,
+                    $fields['password'],
+                    $fields['identity'],
+                    $fields['password']
+                ));
+                $update->execute([
+                    'hash' => Password::hash($password ?? ''),
+                    'identity' => $credential,
+                    'old_hash' => $passwordHash,
+                ]);
+            }
+
             $user = new UserSession();
             $user
-                ->withToken($result->token);
+                ->withToken($token);
 
             return $user;
         }
@@ -75,9 +95,11 @@ class PdoAuthUserRespository implements AuthUserRepository
     {
         /** @var string $table */
         $table = $this->config->getConfigKey('auth.pdo.table');
+        $tokenField = $this->config->string('auth.pdo.fields.token', 'token');
         $sql = sprintf(
-            "SELECT * FROM %s WHERE token = :token",
+            "SELECT * FROM %s WHERE %s = :token",
             $table,
+            $tokenField,
         );
 
         $stmt = $this->connection->pdo->prepare($sql);
