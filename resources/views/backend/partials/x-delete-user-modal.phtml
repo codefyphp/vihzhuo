@@ -28,6 +28,7 @@ $this->block('modal-delete', function () {
             </div>
 
             <form :id="`delete-user-form-${user.user_id}`" x-data method="post" action="/admin/user/delete/" @submit.prevent="location.hash = '#user-delete-modal'">
+                <?=csrf_field();?>
                 <div class="p-4 mr-20 ml-20 items-center justify-center">
                     <p>Are you sure you want to delete this user?</p>
                     <div class="mb-4">

@@ -7,6 +7,7 @@ namespace Domain\User\Validator;
 use Codefy\Framework\Dto\Attribute\UseDto;
 use Codefy\Framework\Dto\HasDto;
 use Codefy\Framework\Dto\Trait\DtoAware;
+use Codefy\Framework\Proxy\Codefy;
 use Codefy\Framework\Validation\HttpInputValidator;
 use Domain\User\Dto\StoreUserData;
 use Domain\User\Enum\UserRole;
@@ -15,7 +16,7 @@ use function Codefy\Framework\Helpers\gate;
 use function implode;
 
 #[UseDto(StoreUserData::class)]
-final class StoreUserValidator extends HttpInputValidator implements HasDto
+class StoreUserValidator extends HttpInputValidator implements HasDto
 {
     use DtoAware;
 
@@ -32,7 +33,12 @@ final class StoreUserValidator extends HttpInputValidator implements HasDto
     {
         $roles = implode(separator: ',', array: UserRole::values());
 
+        $usernameLength = Codefy::$PHP->configContainer->integer('auth.username_min_length', 6);
+        $passwordLength = Codefy::$PHP->configContainer->integer('auth.password_min_length', 26);
+
         return [
+            'username' => "required|string|min:{$usernameLength}|max:20|regex:/^[a-z_-]+$/",
+            'password' => "required|string|min:{$passwordLength}",
             'first_name' => 'required|string|min:3',
             'middle_name' => 'string|min:3',
             'last_name' => 'required|string|min:3',

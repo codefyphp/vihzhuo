@@ -1,13 +1,11 @@
 <?php
-
-use function Codefy\Framework\Helpers\config;
 use function Codefy\Framework\Helpers\gate;
 use function Codefy\Framework\Helpers\trans;
 ?>
 
 <?php if(false === gate('admin:dashboard')): ?>
     <nav id="nav-menu" class="hidden md:flex space-x-4">
-        <a href="/<?=config()->string(key: 'auth.login_route');?>/">
+        <a href="/<?=$this->config()->string(key: 'auth.login_route');?>/">
         <button
                 class="inline-flex items-center py-2 px-6 bg-gradient-to-r from-indigo-700 to-pink-600 hover:bg-opacity-95 text-white rounded-md"
         >
@@ -50,15 +48,14 @@ use function Codefy\Framework\Helpers\trans;
                         <?=trans('Dashboard');?>
                     </a>
                 </li>
+                <?php if (gate('vihzhuo:manage')): ?>
                 <li>
-                    <a class="py-1 px-2 hover:bg-slate-200 flex items-center" href="/admin/manager/" class="text-indigo-600 hover:underline">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear size-4 ml-2 mr-2" viewBox="0 0 16 16">
-                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
-                        </svg>
+                    <a class="py-1 px-2 hover:bg-slate-200 flex items-center" href="/admin/manager/">
+                        <span class="size-4 ml-2 mr-2" aria-hidden="true">&#9881;</span>
                         <?=trans('Website Manager');?>
                     </a>
                 </li>
+                <?php endif; ?>
                 <li>
                     <a class="py-1 px-2 hover:bg-slate-200 flex items-center" href="/admin/profile/" class="text-indigo-600 hover:underline">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 ml-2 mr-2">
@@ -67,6 +64,7 @@ use function Codefy\Framework\Helpers\trans;
                         <?=trans('Profile');?>
                     </a>
                 </li>
+                <?php if (gate('admin:edit:user')): ?>
                 <li>
                     <a class="py-1 px-2 hover:bg-slate-200 flex items-center" href="/admin/users/" class="text-indigo-600 hover:underline">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 ml-2 mr-2">
@@ -75,13 +73,17 @@ use function Codefy\Framework\Helpers\trans;
                         <?=trans('Users');?>
                     </a>
                 </li>
+                <?php endif; ?>
                 <li>
-                    <a class="py-1 px-2 hover:bg-slate-200 flex items-center" href="/logout/" class="text-indigo-600 hover:underline">
+                    <form method="post" action="<?=$this->url('logout/');?>">
+                        <?=csrf_field();?>
+                    <button type="submit" class="py-1 px-2 hover:bg-slate-200 flex items-center text-indigo-600 hover:underline">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 ml-2 mr-2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1 0 12.728 0M12 3v9" />
                         </svg>
                         <?=trans('Logout');?>
-                    </a>
+                    </button>
+                    </form>
                 </li>
             </ul>
         </div>

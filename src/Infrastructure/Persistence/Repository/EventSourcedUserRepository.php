@@ -14,13 +14,18 @@ use Codefy\Traits\EventSourcedRepositoryAware;
 use Domain\User\Repository\UserAggregateRepository;
 use Domain\User\Service\UserProjection;
 use Domain\User\User;
+use Exception;
+use Qubus\Expressive\Database;
 
 final class EventSourcedUserRepository implements UserAggregateRepository
 {
     use EventSourcedRepositoryAware;
 
-    public function __construct(protected TransactionalEventStore $eventStore, protected UserProjection $projection)
-    {
+    public function __construct(
+        protected TransactionalEventStore $eventStore,
+        protected UserProjection $projection,
+        private readonly Database $db,
+    ) {
     }
 
     /**
@@ -29,7 +34,10 @@ final class EventSourcedUserRepository implements UserAggregateRepository
      */
     public function loadAggregateRoot(AggregateId $aggregateId): RecordsEvents
     {
-        $this->retrieveFromIdentityMap($aggregateId);
+        $cached = $this->retrieveFromIdentityMap($aggregateId);
+        if ($cached instanceof RecordsEvents) {
+            return $cached;
+        }
 
         $aggregateHistory = $this->eventStore->getAggregateHistoryFor(aggregateId: $aggregateId);
         $eventSourcedAggregate = User::reconstituteFromEventStream(
@@ -41,6 +49,9 @@ final class EventSourcedUserRepository implements UserAggregateRepository
         return $eventSourcedAggregate;
     }
 
+    /**
+     * @throws Exception
+     */
     public function saveAggregateRoot(RecordsEvents $aggregate): void
     {
         $this->attachToIdentityMap($aggregate);
@@ -48,11 +59,10 @@ final class EventSourcedUserRepository implements UserAggregateRepository
         /** @var DomainEvent[] $events */
         $events = iterator_to_array($aggregate->getRecordedEvents());
 
-        $transaction = $this->eventStore->commit(...$events);
-
-        $committedEvents = $transaction->committedEvents;
-
-        $this->projection->project(...$committedEvents);
+        $this->db->transactional(function () use ($events): void {
+            $transaction = $this->eventStore->commit(...$events);
+            $this->projection->project(...$transaction->committedEvents);
+        });
 
         $aggregate->clearRecordedEvents();
 

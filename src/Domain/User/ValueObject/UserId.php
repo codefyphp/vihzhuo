@@ -11,7 +11,6 @@ use Qubus\ValueObjects\Identity\Ulid;
 
 class UserId extends Ulid implements AggregateId
 {
-
     public function aggregateClassName(): string
     {
         return User::className();

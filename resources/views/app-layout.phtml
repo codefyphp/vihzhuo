@@ -13,7 +13,8 @@ use function Codefy\Framework\Helpers\gate;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="CodefyPHP <?=$this->esc(Codefy::$PHP->version());?>">
     <title><?=$this->esc($title);?></title>
-    <link rel="icon" type="image/x-icon" href="<?=$this->url('favicon.png');?>">
+    <link rel="manifest" href="<?=$this->url('site.webmanifest.json');?>" />
+    <link rel="icon" type="image/x-icon" href="<?=$this->url('favicon.ico');?>">
     <style>[x-cloak] { display: none !important; }</style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.1/dist/cdn.min.js"></script>
@@ -46,9 +47,17 @@ use function Codefy\Framework\Helpers\gate;
         <?php else: ?>
         <nav class="flex flex-col px-6 py-3 space-y-2">
             <a href="/admin/" class="text-indigo-600 hover:underline"><?=$this->trans('Dashboard');?></a>
+            <?php if (gate('vihzhuo:manage')): ?>
+            <a href="/admin/manager/" class="text-indigo-600 hover:underline"><?=$this->trans('Website Manager');?></a>
+            <?php endif; ?>
             <a href="/admin/profile/" class="text-indigo-600 hover:underline"><?=$this->trans('Profile');?></a>
+            <?php if (gate('admin:edit:user')): ?>
             <a href="/admin/users/" class="text-indigo-600 hover:underline"><?=$this->trans('Users');?></a>
-            <a href="/logout/" class="text-indigo-600 hover:underline"><?=$this->trans('Logout');?></a>
+            <?php endif; ?>
+            <form method="post" action="<?=$this->url('logout/');?>">
+                <?=csrf_field();?>
+                <button type="submit" class="text-indigo-600 hover:underline"><?=$this->trans('Logout');?></button>
+            </form>
         </nav>
         <?php endif; ?>
     </div>

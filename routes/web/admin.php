@@ -24,7 +24,7 @@ return function (\Qubus\Routing\Psr7Router $router) use ($loginRoute) {
 
         $group->map(verbs: ['PUT'], uri: '/user/delete/', callback: 'AdminController@destroy')
             ->name('admin.user.delete')
-            ->middleware(["gate:admin:edit:user,/admin/users/"]);
+            ->middleware(["gate:admin:delete:user,/admin/users/"]);
 
         $group->map(verbs: ['GET'], uri: '/', callback: 'AdminController@index')
             ->name('admin.home')
@@ -36,10 +36,6 @@ return function (\Qubus\Routing\Psr7Router $router) use ($loginRoute) {
 
         $group->map(verbs: ['GET'], uri: '/users/', callback: 'AdminController@users')
             ->name('admin.users')
-            ->middleware(["gate:admin:dashboard,/{$loginRoute}/"]);
-
-        $group->map(verbs: ['GET'], uri: '/manager/', callback: 'WebsiteManagerController@index')
-            ->name('admin.manager')
-            ->middleware(["gate:vihzhuo:manage,/admin/"]);
+            ->middleware(["gate:admin:edit:user,/{$loginRoute}/"]);
     });
 };

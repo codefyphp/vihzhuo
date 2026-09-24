@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Application\Http\Controller;
 
 use Codefy\Framework\Http\BaseController;
-use Domain\User\Enum\UserRole;
 use Domain\User\Validator\UpdateUserPasswordValidator;
-use Domain\User\Validator\UpdateUserValidator;
+use Domain\User\Validator\UpdateProfileValidator;
 use Domain\User\Service\UserService;
 use Psr\Http\Message\ResponseInterface;
 use Qubus\Http\ServerRequest;
 use Qubus\Routing\Exceptions\NamedRouteNotFoundException;
 use Qubus\Routing\Exceptions\RouteParamFailedConstraintException;
+use Qubus\Routing\Psr7Router;
 
 use function Codefy\Framework\Helpers\trans;
 use function Codefy\Framework\Helpers\user;
@@ -21,6 +21,10 @@ use function Codefy\Framework\Helpers\view;
 final class ProfileController extends BaseController
 {
     private string $profileTemplate = 'framework::backend/profile';
+
+    public function __construct(protected Psr7Router $router)
+    {
+    }
 
     /**
      * @throws RouteParamFailedConstraintException
@@ -35,7 +39,6 @@ final class ProfileController extends BaseController
             data: [
                 'title' => trans('User Profile'),
                 'user' => user(),
-                'roles' => UserRole::cases(),
                 'url' => $this->router->url(name: 'admin.profile.update'),
             ]
         );
@@ -58,12 +61,12 @@ final class ProfileController extends BaseController
 
             return $this->redirect(
                 url: $this->router->url(
-                    name: 'auth.logout'
+                    name: 'auth.login'
                 )
             );
         } else {
             $service->updateUser(
-                UpdateUserValidator::make($request)
+                UpdateProfileValidator::make($request)
             );
         }
 

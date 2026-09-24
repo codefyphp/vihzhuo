@@ -7,47 +7,55 @@ namespace Application\Http\Controller;
 use Application\Service\CodefyPageBuilder;
 use Codefy\Framework\Http\BaseController;
 use Codefy\Framework\Proxy\Codefy;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Qubus\Exception\Data\TypeException;
-use Qubus\Http\Factories\EmptyResponseFactory;
-use Qubus\Http\Factories\HtmlResponseFactory;
 use Qubus\Http\ServerRequest;
 use Qubus\Routing\Exceptions\NamedRouteNotFoundException;
 use Qubus\Routing\Exceptions\RouteParamFailedConstraintException;
+use Qubus\Routing\Psr7Router;
 
 use function Codefy\Framework\Helpers\config;
 use function Codefy\Framework\Helpers\gate;
 use function Codefy\Framework\Helpers\view;
 use function Qubus\Security\Helpers\t__;
-use function Qubus\Support\Helpers\is_null__;
 
 final class PageBuilderController extends BaseController
 {
+    public function __construct(protected Psr7Router $router)
+    {
+    }
+
     /**
      * @throws \Exception
      */
-    public function assets(): void
+    public function assets(ServerRequest $request): ResponseInterface
     {
-        $builder = $this->builder();
-        $builder->handlePageBuilderAssetRequest();
+        $response = $this->builder()->handlePublicRequest($request);
+
+        return $response ?? view(template: 'framework::error/404')->withStatus(404);
     }
 
     /**
      * @throws TypeException
+     * @throws Exception
      */
-    public function uploads(): void
+    public function uploads(ServerRequest $request): ResponseInterface
     {
-        $builder = $this->builder();
-        $builder->handleUploadedFileRequest();
+        $response = $this->builder()->handlePublicRequest($request);
+
+        return $response ?? view(template: 'framework::error/404')->withStatus(404);
     }
 
     /**
+     * @param ServerRequest $request
      * @return ResponseInterface
-     * @throws TypeException
      * @throws NamedRouteNotFoundException
      * @throws RouteParamFailedConstraintException
+     * @throws TypeException
+     * @throws Exception
      */
-    public function websiteManager(): ResponseInterface
+    public function websiteManager(ServerRequest $request): ResponseInterface
     {
         if (false === gate(permission: 'vihzhuo:manage')) {
             Codefy::$PHP->flash->error(
@@ -56,10 +64,9 @@ final class PageBuilderController extends BaseController
             return $this->redirect($this->router->url('admin.home'));
         }
 
-        $builder = new CodefyPageBuilder(config()->array('vihzhuo'));
-        $builder->handleRequest();
+        $builder = $this->builder();
 
-        return EmptyResponseFactory::create(200);
+        return $builder->handleRequest($request);
     }
 
     /**
@@ -67,19 +74,18 @@ final class PageBuilderController extends BaseController
      */
     public function any(ServerRequest $request): ResponseInterface
     {
-        $builder = new CodefyPageBuilder(config()->array('vihzhuo'));
-        $hasPageReturned = $builder->handlePublicRequest();
+        $builder = $this->builder();
+        $response = $builder->handlePublicRequest($request);
 
-        if ($request->getUri()->getPath() === '/' && ! $hasPageReturned) {
+        if ($response !== null) {
+            return $response;
+        }
+
+        if ($request->getUri()->getPath() === '/') {
             return view(template: 'framework::welcome');
         }
 
-        if (is_null__($hasPageReturned)) {
-            return view(template: 'framework::error/404');
-        }
-
-        // @phpstan-ignore argument.type
-        return HtmlResponseFactory::create($hasPageReturned);
+        return view(template: 'framework::error/404')->withStatus(404);
     }
 
     /**
@@ -87,6 +93,8 @@ final class PageBuilderController extends BaseController
      */
     private function builder(): CodefyPageBuilder
     {
-        return new CodefyPageBuilder(config()->array('vihzhuo'));
+        $config = config()->array('vihzhuo');
+
+        return new CodefyPageBuilder(array_filter($config, 'is_string', ARRAY_FILTER_USE_KEY));
     }
 }

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Application\Http\Controller;
 
 use Codefy\Framework\Http\BaseController;
-use Domain\User\Validator\StoreUserValidator;
+use Domain\User\Validator\RegisterUserValidator;
 use Domain\User\Service\UserService;
 use Psr\Http\Message\ResponseInterface;
 use Qubus\Http\ServerRequest;
 use Qubus\Routing\Exceptions\NamedRouteNotFoundException;
 use Qubus\Routing\Exceptions\RouteParamFailedConstraintException;
+use Qubus\Routing\Psr7Router;
 
 use function Codefy\Framework\Helpers\gate;
 use function Codefy\Framework\Helpers\trans;
@@ -19,6 +20,10 @@ use function Codefy\Framework\Helpers\view;
 final class RegisterController extends BaseController
 {
     private string $showTemplate = 'framework::frontend/register';
+
+    public function __construct(protected Psr7Router $router)
+    {
+    }
 
     /**
      * @throws RouteParamFailedConstraintException
@@ -52,7 +57,7 @@ final class RegisterController extends BaseController
      */
     public function create(ServerRequest $request, UserService $service): ResponseInterface
     {
-        if (false === $service->createAccount(StoreUserValidator::make($request))) {
+        if (false === $service->createAccount(RegisterUserValidator::make($request))) {
             return $this->redirect(
                 url: $this->router->url(
                     name: 'register.show'

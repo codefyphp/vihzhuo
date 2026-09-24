@@ -18,6 +18,11 @@ TestRoute.php
 .enc.key
 .env
 .lando.yml
+.phpcs-cache
 .php-cs-fixer.cache
 .phpunit.result.cache
 composer.lock
+/database/*.json
+/database/*.json.lock
+/storage/app/vihzhuo/
+/storage/scheduler-locks/

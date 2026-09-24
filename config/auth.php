@@ -13,25 +13,17 @@ return [
     */
     'cookie_name' => 'USERSESSID',
 
-    /**
-     * Do not use the default app encryption key found in .env.example.
-     * Generate a new encryption key by running this console command:
-     * php codex generate:key
-     */
-    'encryption_key' => env(key: 'APP_ENCRYPTION_KEY'),
+    'login_route' => env(key: 'AUTH_LOGIN_ROUTE', default: 'login'),
 
-    /**
-     * If you update this value, you will need to update the values
-     * for `login_url` and `http_redirect` as well.
-     */
-    'login_route' => 'login',
-
-    'login_url' => env(key: 'APP_BASE_URL') . 'admin/login/',
+    'login_url' => sprintf(
+        rtrim(env(key: 'APP_BASE_URL', default: 'http://localhost:8080/'), '/') . '/%s/',
+        env(key: 'AUTH_LOGIN_ROUTE', default: 'login')
+    ),
 
     /** Where should users be redirected when authentication fails? */
-    //'http_redirect' => '/admin/login/',
+    'http_redirect' => sprintf('/%s/', env(key: 'AUTH_LOGIN_ROUTE', default: 'login')),
 
-    'admin_url' => env(key: 'APP_BASE_URL') . 'admin/',
+    'admin_url' => rtrim(env(key: 'APP_BASE_URL', default: 'http://localhost:8080/'), '/') . '/admin/',
 
     'pdo' => [
         /** name of the user's table */
@@ -50,7 +42,7 @@ return [
 
     ],
 
-    'redirect_guests_to' => '/admin/login/',
+    'redirect_guests_to' => sprintf('/%s/', env(key: 'AUTH_LOGIN_ROUTE', default: 'login')),
 
     'password_min_length' => 26,
 

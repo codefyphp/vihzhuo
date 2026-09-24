@@ -25,7 +25,7 @@ return [
     'roles' => [
         'user' => [
             'description' => 'Regular user',
-            'permissions' => [],
+            'permissions' => ['admin:dashboard', 'admin:profile'],
         ],
         'manager' => [
             'description' => 'Editor',

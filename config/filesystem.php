@@ -22,15 +22,15 @@ return [
         */
         'local' => [
             'root' => storage_path(),
-            'visibility' => \League\Flysystem\Visibility::PUBLIC,
+            'visibility' => \League\Flysystem\Visibility::PRIVATE,
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -46,11 +46,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -66,11 +66,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -86,11 +86,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -106,11 +106,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -126,11 +126,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -146,11 +146,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -166,11 +166,11 @@ return [
             'permission' => [
                 'file' => [
                     'public'  => 0644,
-                    'private' => 0604,
+                    'private' => 0600,
                 ],
                 'dir'  => [
                     'public'  => 0755,
-                    'private' => 7604,
+                    'private' => 0700,
                 ],
             ],
         ],
@@ -213,11 +213,11 @@ return [
         'permission' => [
             'file' => [
                 'public'  => 0644,
-                'private' => 0604,
+                'private' => 0600,
             ],
             'dir'  => [
                 'public'  => 0755,
-                'private' => 7604,
+                'private' => 0700,
             ],
         ],
     ],

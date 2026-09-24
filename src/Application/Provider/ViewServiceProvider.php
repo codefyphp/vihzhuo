@@ -16,11 +16,11 @@ class ViewServiceProvider extends CodefyServiceProvider
             return new NativeLoader(
                 namespaces: $this->codefy->configContainer->array(key: 'view.path'),
                 functions: [
-                    'trans' => 'Codefy\Framework\Helpers\trans',
-                    'html' => 'Codefy\Framework\Helpers\trans_html',
-                    'attr' => 'Codefy\Framework\Helpers\trans_attr',
-                    'config' => 'Codefy\Framework\Helpers\config',
-                    'url' => 'Codefy\Framework\Helpers\site_url',
+                    'trans' => \Codefy\Framework\Helpers\trans(...),
+                    'html' => \Codefy\Framework\Helpers\trans_html(...),
+                    'attr' => \Codefy\Framework\Helpers\trans_attr(...),
+                    'config' => \Codefy\Framework\Helpers\config(...),
+                    'url' => \Codefy\Framework\Helpers\site_url(...),
                 ],
                 extension: 'phtml'
             );

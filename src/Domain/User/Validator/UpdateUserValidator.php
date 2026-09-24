@@ -16,7 +16,7 @@ use function implode;
 use function strtolower;
 
 #[UseDto(UpdateUserData::class)]
-final class UpdateUserValidator extends HttpInputValidator implements HasDto
+class UpdateUserValidator extends HttpInputValidator implements HasDto
 {
     use DtoAware;
 

@@ -27,6 +27,7 @@ $passwordLength = $this->config()->integer('auth.password_min_length');
             </div>
 
             <form id="create-user-form" x-data="addUserForm" method="post" action="/admin/store/">
+                <?=csrf_field();?>
                 <div class="p-4 mr-20 ml-20 items-center justify-center form-field">
                     <div class="mb-4" x-data="{usernameLength: <?=$usernameLength;?>}">
                         <p

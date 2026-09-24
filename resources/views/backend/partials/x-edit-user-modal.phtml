@@ -28,6 +28,7 @@ $this->block('modal-edit', function ($params) {
             </div>
 
             <form :id="`update-user-form-${user.user_id}`" x-data method="post" action="/admin/user/edit/" @submit.prevent="location.hash = '#user-update-modal'">
+                <?=csrf_field();?>
                 <div class="p-4 mr-20 ml-20 items-center justify-center">
                     <div class="mb-4">
                         <label class="block text-slate-600 font-medium mb-2"><?=trans('Username');?></label>

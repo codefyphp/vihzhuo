@@ -16,6 +16,7 @@ use Codefy\Domain\EventSourcing\TransactionalEventStore;
 use Codefy\Domain\EventSourcing\TransactionId;
 use Codefy\Domain\Metadata;
 use Exception as NativeException;
+use JsonException;
 use Qubus\Exception\Data\TypeException;
 use Qubus\Expressive\Database;
 use Qubus\Expressive\QueryBuilderException;
@@ -41,7 +42,10 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
                         'transaction_id' => $transactionId::fromString(transactionId: $transactionId->toNative()),
                         'event_type' => $event->eventType(),
                         'event_classname' => get_class($event),
-                        'payload' => json_encode(value: $event->payload(), flags: JSON_PRETTY_PRINT),
+                        'payload' => json_encode(
+                            value: $event->payload(),
+                            flags: JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR
+                        ),
                         'metadata' => json_encode(value: [
                             '__aggregate_type' => $event->metaParam(name: Metadata::AGGREGATE_TYPE),
                             '__aggregate_id' => (string) $event->aggregateId(),
@@ -49,7 +53,7 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
                             '__event_id' => (string) $event->eventId(),
                             '__event_type' => $event->eventType(),
                             '__recorded_at' => $event->recordedAt()->format('Y-m-d H:i:s'),
-                        ], flags: JSON_PRETTY_PRINT),
+                        ], flags: JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR),
                         'aggregate_id' => $event->aggregateId()->__toString(),
                         'aggregate_type' => $event->metadata()[Metadata::AGGREGATE_TYPE],
                         'aggregate_playhead' => $event->playhead(),
@@ -64,7 +68,6 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
 
     /**
      * @inheritDoc
-     * @throws TypeException
      * @throws NativeException
      */
     public function commit(DomainEvent ...$events): Transactional
@@ -80,9 +83,11 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
             );
         }
 
-        foreach ($events as $event) {
-            $this->append(event: $event, transactionId: $transactionId);
-        }
+        $this->db->transactional(function () use ($events, $transactionId): void {
+            foreach ($events as $event) {
+                $this->append(event: $event, transactionId: $transactionId);
+            }
+        });
 
         return new EventStoreTransaction(
             transactionId: $transactionId,
@@ -94,6 +99,7 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
     /**
      * @inheritDoc
      * @throws TypeException
+     * @throws JsonException
      */
     public function getAggregateHistoryFor(AggregateId $aggregateId): EventStream
     {
@@ -109,6 +115,7 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
     /**
      * @inheritDoc
      * @throws TypeException
+     * @throws JsonException
      */
     public function loadFromPlayhead(AggregateId $aggregateId, int $playhead): EventStream
     {
@@ -118,7 +125,7 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
             ->select(columns: '*')
             ->where(condition: 'aggregate_id', parameters: (string) $aggregateId)
             ->and()
-            ->where(condition: 'aggregate_playhead = ?', parameters: $playhead);
+            ->where(condition: 'aggregate_playhead >= ?', parameters: $playhead);
 
         return $this->eventStream($query, $aggregateId, $stream);
     }
@@ -130,11 +137,11 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
      * @return EventStream
      * @throws TypeException
      * @throws CorruptEventStreamException
+     * @throws JsonException
      */
     private function eventStream(Database $query, AggregateId $aggregateId, array $stream): EventStream
     {
-        /** @phpstan-ignore argument.type */
-        $eventStream = iterator_to_array(iterator: $query->find());
+        $eventStream = iterator_to_array(iterator: $query->orderBy('aggregate_playhead', 'ASC')->find());
 
         /** @var object{
          *     'event_id':string,
@@ -153,12 +160,12 @@ final readonly class PdoTransactionalEventStore implements TransactionalEventSto
              *     __recorded_at: string
              * } $metadata
              */
-            $metadata = json_decode(json: $event->metadata, associative: true);
+            $metadata = json_decode(json: $event->metadata, associative: true, flags: JSON_THROW_ON_ERROR);
 
             /** @var array<DomainEvent> $stream */
             $stream[] = $event->event_classname::fromArray([
                 'aggregateId' => $aggregateId::fromString($event->aggregate_id),
-                'payload' => json_decode(json: $event->payload, associative: true),
+                'payload' => json_decode(json: $event->payload, associative: true, flags: JSON_THROW_ON_ERROR),
                 'metadata' => [
                     Metadata::AGGREGATE_TYPE => $metadata['__aggregate_type'],
                     Metadata::AGGREGATE_ID => $aggregateId::fromString($metadata['__aggregate_id']),
